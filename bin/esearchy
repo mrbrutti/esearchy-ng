@@ -1,0 +1,334 @@
+#!/usr/bin/env ruby -wKU 
+#  esearchy
+#  
+#  Created by FreedomCoder on 2009-10-24.
+#  Copyright 2009 FreedomCoder's Labs. All rights reserved.
+# 
+if  RUBY_PLATFORM =~ /mingw|mswin/
+  require 'Win32API'
+  class Wcol
+    gsh = Win32API.new("kernel32", "GetStdHandle", ['L'], 'L') 
+    @textAttr = Win32API.new("kernel32","SetConsoleTextAttribute", ['L','N'], 'I')
+    @h = gsh.call(-11)
+  
+    def self.color(col)
+      @textAttr.call(@h,col)
+    end
+    
+    def self.puts(color, text)
+      self.color(@h,color)
+      puts text
+      self.color(@h,7)
+    end
+  end
+end
+
+
+require 'rubygems'
+require 'getoptlong'
+require 'sqlite3'
+require 'prawn'
+require 'prawn/layout'
+
+require '../lib/esearchy.rb'
+
+ESearchy::log = true
+
+@yahoo_key  = nil
+@bing_key   = nil
+@maxhits    = nil
+@params     = {}
+@list       = []
+@output     = nil
+@email_engines = [:Google,:Yahoo,:Bing,:Altavista,:Usenet,:PGP,:Spider,:GoogleGroups]
+@people_engines = [:LinkedIn,:Naymz,:Classmates,:GoogleProfiles]
+
+opts = GetoptLong.new(
+  [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-google', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-yahoo', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-bing', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-altavisa', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-linkedin', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-gprofiles', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-naymz', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-ggroups', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-pgp', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-usenet', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-spider', GetoptLong::NO_ARGUMENT ],
+  [ '--query','-q', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--company','-c', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--website','-w', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--file','-f', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--filter','-p', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--output','-o', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--yahookey','-y', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--bingkey','-b', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--maxhits','-m', GetoptLong::REQUIRED_ARGUMENT ]
+)
+
+opts.each do |opt, arg|
+  case opt
+    when '--help':
+      # BEGIN OF HELP
+      ESearchy::LOG.puts "\nHELP for Esearchy\n---------------------\n
+      --help, -h
+      \tWell I guess you know what this is for (To obtain this Help).\n
+      INPUT PARAMS:
+      --query, -q [@domain.com]
+      \t The domain name to search.\n
+      --company, -c [Company Inc]
+      \t The company name to search.\n
+      --website, -w [www.domain.com]
+      \t The website name to spider.\n
+      --yahookey, -y [key]
+      \t The Yahoo API Key .\n
+      --bingkey, -b [key]
+      \t The Bing API Key .\n
+      --filter, -p
+      \t The pattern to use to filter emails.(not fully implemented)\n
+      --file, -f [file_name] 
+      \tIf we need to search more than one domain we can provide a list.\n
+      --output, -o
+      \tThe output file name.\n\n
+      PLUGIN OPTIONS:
+      --disable-google
+      \t Disables Google searches.\n
+      --disable-yahoo
+      \t Disables Yahoo searches.\n
+      --disable-bing
+      \t Disables Bing searches.\n
+      --disable-linkedin
+      \t Disables LinkedIn searches.\n
+      --disable-gprogiles
+      \t Disables Google Profiles searches.\n
+      --disable-naymz
+      \t Disables Naymz searches.\n
+      --disable-ggroups
+      \t Disables Google Groups searches.\n
+      --disable-pgp
+      \t Disables PGP searches.\n
+      --disable-usenet
+      \t Disables Usenet searches.\n\n
+      Copyright 2009 - FreedomCoder\n"
+      #END OF HELP
+      exit(0)
+    when '--disable-google':
+      @email_engines.delete(:Google) 
+    when '--disable-yahoo':
+      @email_engines.delete(:Yahoo)
+    when '--disable-bing':
+      @email_engines.delete(:Bing)
+    when '--disable-altavisa':
+      @email_engines.delete(:Altavista)
+    when '--disable-spider':
+      @email_engines.delete(:Spider)
+    when '--disable-linkedin':
+      @people_engines.delete(:LinkedIn)
+    when '--disable-gprofiles':
+      @people_engines.delete(:GoogleProfiles)
+    when '--disable-naymz':
+      @people_engines.delete(:Naymz)
+    when '--disable-classmates':
+      @email_engines.delete(:Classmates)
+    when '--disable-ggroups':
+      @email_engines.delete(:GoogleGroups)
+    when '--disable-pgp':
+      @email_engines.delete(:PGP)
+    when '--disable-usenet':
+      @email_engines.delete(:Usenet)
+    when '--query':
+      @params[:query] = arg
+    when '--company':
+      @params[:company] = arg
+    when '--file':
+      if File.exists?(arg)
+        open(arg,'r').each_line do |line|
+          temp[:query],temp[:company],temp[:website] = line.split(',')
+          @list << temp
+        end
+      else
+        raise ArgumentError, "File not found"
+        exit(0)
+      end
+    when '--yahookey':
+      @yahoo_key = arg
+    when '--bingkey':
+      @bing_key = arg
+    when '--filter':
+      @pattern = arg
+    when '--output':
+      @output = Output.new arg
+    when '--maxhits':
+      @params[:maxhits] = arg.to_i
+    else
+      puts "Unknown command. Please try again"
+      exit(0)
+  end
+end
+
+
+def configure(maxhits = 500, yahoo_key = nil, bing_key = nil)
+  File.new(ENV['HOME'] + "/.esearchyrc", +w ) do |line|
+    line << "MAXHITS=" + maxhits
+    line << "YAHOOKEY=" + yahoo_key if @yahoo_key
+    line << "BINGKEY=" + bing_key if @bing_key
+  end
+end
+
+def read_conf
+  File.read((ENV['HOME'] + "/.esearchyrc").readlines.each do |line|
+    key, value = line.split("=")
+    case key
+    when "MAXHITS"
+      @params[:maxhits] ||= value
+    when "YAHOOKEY"
+      @yahoo_key ||= value
+    when "BINGKEY"
+      @bing_key = ||value
+    end
+  end
+end
+
+def dump(results)
+  # this is for session handling.
+end
+
+### PRINTING FINDING METHODS ###
+def print_(list)
+  list.each do |email|
+    unless @emails.include?(email)
+      case RUBY_PLATFORM
+      when /mingw|mswin/
+        print_windows
+      when /linux|darwin/
+        print_linux
+      end
+    end
+  end
+end
+  
+def print_linux(email)
+  if email.match(/#{@query.gsub("@","").split('.')[0]}/)
+    puts "\033[31m" + email + "\033\[0m"
+  else
+    puts "\033[32m" + email + "\033\[0m"
+  end
+end
+  
+def print_windows(email)
+  if email.match(/#{@query.gsub("@","").split('.')[0]}/)
+    Wcol::puts(12, email)
+  else
+    Wcol::puts(2, email)
+  end
+end
+
+### SAVING TO DISK ###
+class Output
+
+  def initialize(name)
+    @output = name
+  end
+  
+  def save(data)
+    case @output
+    when /pdf/
+      save_pdf
+    when /csv/
+      save_csv
+    when /sqlite/
+      save_sqlite
+    end
+  end
+  
+  private 
+  def save_csv(data)
+    out = File.new(name, "w")
+    out << "EMAILS/PERSON, TYPE, CLASS, MATCH\n"
+    data.each do |r|
+      out << r.each { |x| x
+    end
+    
+  end
+  
+  def save_pdf(data)
+    Prawn::Document.generate(name) do  
+      table data, 
+        :position => :center, 
+        :headers => ["Email/Person", "Type", "Class", "Match"],
+        :header_color => "0046f9",
+        :row_colors => :pdf_writer, #["ffffff","ffff00"],
+        :font_size => 10,
+        :vertical_padding => 2,
+        :horizontal_padding => 5
+  end
+  
+  def save_sqlite(data)
+    @db = SQLite3::Database.new(file)
+    @db.execute("CREATE TABLE IF NOT EXISTS results (
+      id integer primary key asc, 
+      object text, 
+      type char, 
+      class text,
+      match char);")
+      
+    @results.each do |r| 
+      @db.execute("INTERT INTO results (object,type,class,match) 
+                   VALUES (#{r[0].to_s},#{r[1]},#{r[2]},#{r[3]});")
+    end
+    @db.commit        
+  end
+end
+
+def execute(p)
+  if p[:query]
+    search = ESearchy::Search.new(p)
+
+    search.start do |s|
+      s.Emails(@email_engines) do |e|
+        e.Yahoo.appid= @yahoo_key if @yahoo_key
+        e.Bing.appid= @bing_key if @bing_key 
+        e.search do |e| 
+          dump(e.results)
+          print_(e.emails.uniq)
+        end
+        e.docs do |e| 
+          dump(e.results)
+          print_(e.emails.uniq)
+        end
+      end
+    
+      s.People(@people_engines) do |p|
+        p.search { |p| dump(p.results) }
+      end
+    end
+    @output.save(search.results)
+    puts "-------RESULTS--------"
+    print_ search.emails
+    print_ search.people
+  end
+end
+
+puts "DISCLOSURE: This is just an example tool ESearchy is more and more a piece 
+of code intended to work as a Library and you should create your own little.rb file :)"
+puts "------------------------------------------------------------------------"
+puts "REMINDER:" 
+puts "- if you want to use GoogleProfiles, LinkedIn, Classmates or Naymz, you will need to use the --company (-c) <company_name> option"
+puts "- If you want to spider a website you need to use the --website (-w) <URL> option"
+
+
+unless File.exist?(ENV['HOME'] + "/.esearchyrc")
+  configure(@params[:maxhits],@yahoo_key,@bing_key)
+else
+  read_conf
+end
+
+unless @list.empty?
+  @list.each {|p| execute(p)}
+end
+
+unless @params.empty?
+  execute(@params)
+end
+puts "Happy Hacking :)\nGood Bye.\n"

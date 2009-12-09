@@ -1,0 +1,5 @@
+require 'esearchy/OtherEngines/pgp'
+require 'esearchy/OtherEngines/usenet'
+require 'esearchy/OtherEngines/spider'
+require 'esearchy/OtherEngines/googlegroups'
+require 'esearchy/OtherEngines/ldap'

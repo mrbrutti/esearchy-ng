@@ -1,0 +1,1 @@
+require 'esearchy/localengines/directory'

@@ -1,0 +1,112 @@
+= Esearch
+
+== DESCRIPTION
+Esearchy is a small library capable of searching the internet for email addresses. Currently, the supported search methods are, but not limited to:
+
+* Search engines: 
+  * Google
+  * Bing
+  * Yahoo,
+  * AltaVista
+* Social Engines:
+  * LinkedIn
+  * Google Profiles ( Based on DigiNinja's idea http://www.digininja.org/projects/gpscan.php)
+  * Naymz
+  * Classmantes
+* Other Engines
+  * PGP servers
+  * Usenets
+  * GoogleGroups Search
+  * Spider
+  * LDAP
+
+
+But Searches do not stop there, ESearchy it also looks for emails inside: 
+
+* PDF 
+* DOC
+* DOCX
+* XLSX
+* PPTX
+* ODT
+* ODP
+* ODS
+* ODB
+* ASN
+* TXT 
+
+Once all the text is parsed within the file the emails are added to the list of found accounts.
+
+In order to parse Microsoft Word (.doc):
+* You Either need a windows Platform with Word installed.
+* Install AntiWord. ( http://www.winfield.demon.nl/ )
+* Or if non of the above is on the OS, we perform a raw search inside the file.
+
+NOTE: THIS IS STILL BEING DEVELOPED CODE IS SUBMITTED DAILY SO BE AWARE THAT CODE MIGHT NOT WORK PROPERLY AL THE TIME. IF SOMETHING GOES WRONG PLEASE RAISE AN ISSUE.  
+
+
+== SUPPORT:
+
+* http://github.com/FreedomCoder/esearchy/issues
+* Emails from github.
+
+== SYNOPSIS:
+
+For now, there are two main ways of performing a search:
+
+* Executable CLI command
+
+
+* Library
+
+For thouse who want to integrate this to their application you can use it in "the ruby way"
+
+== REQUIREMENTS:
+
+* ruby 1.8 or 1.9
+* cgi
+* pdf/reader
+* json
+* spidr
+* ldap
+* rubyzip ( Migrating to FreedomCoder-rubyzip 0.9.2 so it's 1.9 compatible)
+
+== INSTALL:
+* > sudo gem sources -a http://gems.github.com   (If you do not have the repository)
+* > sudo gem install FreedomCoder-esearchy
+
+== THANKS:
+
+* http://www.penetrationtests.com/ [Penetration Testing Directory]
+* http://www.mundoruby.com.ar/ [Ruby's News Aggregator]
+* http://www.digininja.org/ [DigiNinja's Website]
+* http://hexale.blogspot.com/ [8A's webite]
+* http://www.kalmbach.com.ar/ [/jk's webite]
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) 2008 - 2009:
+
+* {Matias P. Brutti}[http://www.freedomcoder.com.ar]
+
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

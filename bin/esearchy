@@ -1,16 +1,18 @@
-#!/usr/bin/env ruby -wKU 
+#!/usr/bin/env ruby 
+#  -wKU
 #  esearchy
 #  
 #  Created by FreedomCoder on 2009-10-24.
 #  Copyright 2009 FreedomCoder's Labs. All rights reserved.
 # 
+
 if  RUBY_PLATFORM =~ /mingw|mswin/
   require 'Win32API'
   class Wcol
     gsh = Win32API.new("kernel32", "GetStdHandle", ['L'], 'L') 
     @textAttr = Win32API.new("kernel32","SetConsoleTextAttribute", ['L','N'], 'I')
     @h = gsh.call(-11)
-  
+    
     def self.color(col)
       @textAttr.call(@h,col)
     end
@@ -29,8 +31,7 @@ require 'getoptlong'
 require 'sqlite3'
 require 'prawn'
 require 'prawn/layout'
-
-require '../lib/esearchy.rb'
+require 'esearchy'
 
 ESearchy::log = true
 
@@ -40,8 +41,9 @@ ESearchy::log = true
 @params     = {}
 @list       = []
 @output     = nil
-@email_engines = [:Google,:Yahoo,:Bing,:Altavista,:Usenet,:PGP,:Spider,:GoogleGroups]
-@people_engines = [:LinkedIn,:Naymz,:Classmates,:GoogleProfiles]
+
+@email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
+@people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles]
 
 opts = GetoptLong.new(
   [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
@@ -71,7 +73,7 @@ opts.each do |opt, arg|
   case opt
     when '--help':
       # BEGIN OF HELP
-      ESearchy::LOG.puts "\nHELP for Esearchy\n---------------------\n
+      puts "\nHELP for Esearchy\n---------------------\n
       --help, -h
       \tWell I guess you know what this is for (To obtain this Help).\n
       INPUT PARAMS:
@@ -141,9 +143,11 @@ opts.each do |opt, arg|
       @params[:query] = arg
     when '--company':
       @params[:company] = arg
+    when '--website':
+      @params[:website] = arg
     when '--file':
       if File.exists?(arg)
-        open(arg,'r').each_line do |line|
+        File.open(arg,'r').each_line do |line|
           temp[:query],temp[:company],temp[:website] = line.split(',')
           @list << temp
         end
@@ -168,24 +172,24 @@ opts.each do |opt, arg|
 end
 
 
-def configure(maxhits = 500, yahoo_key = nil, bing_key = nil)
-  File.new(ENV['HOME'] + "/.esearchyrc", +w ) do |line|
-    line << "MAXHITS=" + maxhits
-    line << "YAHOOKEY=" + yahoo_key if @yahoo_key
-    line << "BINGKEY=" + bing_key if @bing_key
+def configure(maxhits = nil, yahoo_key = nil, bing_key = nil)
+  File.open(ENV['HOME'] + "/.esearchyrc", "w" ) do |line|
+    line << "MAXHITS=#{maxhits.to_s || "500"}\n" 
+    line << "YAHOOKEY=#{yahoo_key.to_s}\n" if yahoo_key
+    line << "BINGKEY=#{bing_key.to_s}\n" if bing_key
   end
 end
 
 def read_conf
-  File.read((ENV['HOME'] + "/.esearchyrc").readlines.each do |line|
+  File.open(ENV['HOME'] + "/.esearchyrc").readlines.each do |line|
     key, value = line.split("=")
     case key
     when "MAXHITS"
-      @params[:maxhits] ||= value
+      @params[:maxhits] ||= value.to_i
     when "YAHOOKEY"
       @yahoo_key ||= value
     when "BINGKEY"
-      @bing_key = ||value
+      @bing_key ||= value
     end
   end
 end
@@ -196,20 +200,25 @@ end
 
 ### PRINTING FINDING METHODS ###
 def print_(list)
-  list.each do |email|
-    unless @emails.include?(email)
-      case RUBY_PLATFORM
-      when /mingw|mswin/
-        print_windows
-      when /linux|darwin/
-        print_linux
+  unless list.nil?
+    list.each do |item|
+      case item
+      when String
+        case RUBY_PLATFORM
+        when /mingw|mswin/
+          print_windows(item)
+        when /linux|darwin/
+          print_linux(item)
+        end
+      when Array
+        puts item.join " "
       end
     end
   end
 end
   
 def print_linux(email)
-  if email.match(/#{@query.gsub("@","").split('.')[0]}/)
+  if email.match(/#{ESearchy::Search.query.gsub("@","").split('.')[0]}/)
     puts "\033[31m" + email + "\033\[0m"
   else
     puts "\033[32m" + email + "\033\[0m"
@@ -217,7 +226,7 @@ def print_linux(email)
 end
   
 def print_windows(email)
-  if email.match(/#{@query.gsub("@","").split('.')[0]}/)
+  if email.match(/#{ESearchy::Search.query.gsub("@","").split('.')[0]}/)
     Wcol::puts(12, email)
   else
     Wcol::puts(2, email)
@@ -226,7 +235,6 @@ end
 
 ### SAVING TO DISK ###
 class Output
-
   def initialize(name)
     @output = name
   end
@@ -246,10 +254,7 @@ class Output
   def save_csv(data)
     out = File.new(name, "w")
     out << "EMAILS/PERSON, TYPE, CLASS, MATCH\n"
-    data.each do |r|
-      out << r.each { |x| x
-    end
-    
+    data.each { |r| out << r.each { |x| x }}  
   end
   
   def save_pdf(data)
@@ -262,6 +267,7 @@ class Output
         :font_size => 10,
         :vertical_padding => 2,
         :horizontal_padding => 5
+    end
   end
   
   def save_sqlite(data)
@@ -284,18 +290,18 @@ end
 def execute(p)
   if p[:query]
     search = ESearchy::Search.new(p)
-
+    
     search.start do |s|
       s.Emails(@email_engines) do |e|
         e.Yahoo.appid= @yahoo_key if @yahoo_key
-        e.Bing.appid= @bing_key if @bing_key 
-        e.search do |e| 
-          dump(e.results)
-          print_(e.emails.uniq)
+        e.Bing.appid= @bing_key if @bing_key
+        e.search do |x|
+          dump(x.results)
+          print_(x.emails.uniq)
         end
-        e.docs do |e| 
-          dump(e.results)
-          print_(e.emails.uniq)
+        e.docs do |x| 
+          dump(x.results)
+          print_(x.emails.uniq)
         end
       end
     
@@ -303,13 +309,21 @@ def execute(p)
         p.search { |p| dump(p.results) }
       end
     end
-    @output.save(search.results)
-    puts "-------RESULTS--------"
+    @output.save(search.results) if @output
+    puts "-------FINAL RESULTS--------"
     print_ search.emails
     print_ search.people
   end
 end
 
+puts "\033[31m------------------------------------------------------------------------------\033\[0m"
+puts "\033[31m ||---- \033\[0m   //---  ||----      __       //----\\\\    //---  ||     ||   \\\\  // "
+puts "\033[31m ||     \033\[0m  //      ||         // \\\\     ||     \\\\  //      ||     ||    \\\\//"
+puts "\033[31m ||---- \033\[0m  \\\\      ||----    //   \\\\    ||----//  ||       ||-----||     //   "
+puts "\033[31m ||     \033\[0m    \\\\    ||       //-----\\\\   ||   \\\\    \\\\      ||     ||    //"
+puts "\033[31m ||---- \033\[0m ---//    ||----  //       \\\\  ||    \\\\    \\\\---  ||     ||   //   "
+puts "\033[31m------------------------------------------------------------------------------\033\[0m"
+puts "\n"                                            
 puts "DISCLOSURE: This is just an example tool ESearchy is more and more a piece 
 of code intended to work as a Library and you should create your own little.rb file :)"
 puts "------------------------------------------------------------------------"
@@ -331,4 +345,5 @@ end
 unless @params.empty?
   execute(@params)
 end
+puts "\n------------------------"
 puts "Happy Hacking :)\nGood Bye.\n"

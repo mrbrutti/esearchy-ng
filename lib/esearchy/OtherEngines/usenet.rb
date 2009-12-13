@@ -1,6 +1,6 @@
 module ESearchy
   module OtherEngines
-    class Usenet
+    class Usenet < ESearchy::GenericEngine
       ENGINE = "usenet-addresses.mit.edu"
       PORT  = 80
       NUM = 0 # Do not really ned it :)

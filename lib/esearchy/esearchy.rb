@@ -136,7 +136,7 @@ module ESearchy
       def initialize(*args, &block)
         @engines={}
         @documents = []
-        args.each do |e|
+        (args[0].instance_of?(Array) ? args[0] : args).each do |e|
           @engines[e] = ESearchy::Search::EMAIL_ENGINES[e].new(Search.query)
         end
         self.maxhits=Search.maxhits if Search.maxhits
@@ -165,7 +165,7 @@ module ESearchy
       
       def initialize(*args, &block)
         @engines={}
-        args.each do |e|
+        (args[0].instance_of?(Array) ? args[0] : args).each do |e|
           @engines[e] = ESearchy::Search::PEOPLE_ENGINES[e].new(Search.company)
         end
         self.maxhits=Search.maxhits if Search.maxhits

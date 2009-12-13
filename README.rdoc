@@ -56,6 +56,7 @@ For now, there are two main ways of performing a search:
 
 * Executable CLI command
 
+  esearchy -h
 
 * Library
 
@@ -73,7 +74,8 @@ For thouse who want to integrate this to their application you can use it in "th
 
 == INSTALL:
 * > sudo gem sources -a http://gems.github.com   (If you do not have the repository)
-* > sudo gem install FreedomCoder-esearchy
+* > sudo gem install gemcutter
+* > sudo gem install esearchy
 
 == THANKS:
 

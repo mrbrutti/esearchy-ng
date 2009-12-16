@@ -18,9 +18,9 @@ if  RUBY_PLATFORM =~ /mingw|mswin/
     end
     
     def self.puts(color, text)
-      self.color(@h,color)
-      puts text
-      self.color(@h,7)
+      self.color(color)
+      Kernel.puts text
+      self.color(7)
     end
   end
 end
@@ -28,9 +28,6 @@ end
 
 require 'rubygems'
 require 'getoptlong'
-require 'sqlite3'
-require 'prawn'
-require 'prawn/layout'
 require 'esearchy'
 
 ESearchy::log = true
@@ -38,15 +35,30 @@ ESearchy::log = true
 @yahoo_key  = nil
 @bing_key   = nil
 @maxhits    = nil
+@docs       = true
 @params     = {}
 @list       = []
 @output     = nil
 
-@email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
-@people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles]
+@email_engines = [] #[:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
+@people_engines = [] #[:LinkedIn, :Naymz, :Classmates, :GoogleProfiles]
 
 opts = GetoptLong.new(
   [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-all', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-people', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-emails', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-google', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-yahoo', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-bing', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-altavisa', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-linkedin', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-gprofiles', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-naymz', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-ggroups', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-pgp', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-usenet', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-spider', GetoptLong::NO_ARGUMENT ],
   [ '--disable-google', GetoptLong::NO_ARGUMENT ],
   [ '--disable-yahoo', GetoptLong::NO_ARGUMENT ],
   [ '--disable-bing', GetoptLong::NO_ARGUMENT ],
@@ -58,6 +70,7 @@ opts = GetoptLong.new(
   [ '--disable-pgp', GetoptLong::NO_ARGUMENT ],
   [ '--disable-usenet', GetoptLong::NO_ARGUMENT ],
   [ '--disable-spider', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-docs', GetoptLong::NO_ARGUMENT ],
   [ '--query','-q', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--company','-c', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--website','-w', GetoptLong::REQUIRED_ARGUMENT ],
@@ -71,81 +84,144 @@ opts = GetoptLong.new(
 
 opts.each do |opt, arg|
   case opt
-    when '--help':
+    when '--help' then
       # BEGIN OF HELP
-      puts "\nHELP for Esearchy\n---------------------\n
-      --help, -h
-      \tWell I guess you know what this is for (To obtain this Help).\n
-      INPUT PARAMS:
-      --query, -q [@domain.com]
-      \t The domain name to search.\n
-      --company, -c [Company Inc]
-      \t The company name to search.\n
-      --website, -w [www.domain.com]
-      \t The website name to spider.\n
-      --yahookey, -y [key]
-      \t The Yahoo API Key .\n
-      --bingkey, -b [key]
-      \t The Bing API Key .\n
-      --filter, -p
-      \t The pattern to use to filter emails.(not fully implemented)\n
-      --file, -f [file_name] 
-      \tIf we need to search more than one domain we can provide a list.\n
-      --output, -o
-      \tThe output file name.\n\n
-      PLUGIN OPTIONS:
-      --disable-google
-      \t Disables Google searches.\n
-      --disable-yahoo
-      \t Disables Yahoo searches.\n
-      --disable-bing
-      \t Disables Bing searches.\n
-      --disable-linkedin
-      \t Disables LinkedIn searches.\n
-      --disable-gprogiles
-      \t Disables Google Profiles searches.\n
-      --disable-naymz
-      \t Disables Naymz searches.\n
-      --disable-ggroups
-      \t Disables Google Groups searches.\n
-      --disable-pgp
-      \t Disables PGP searches.\n
-      --disable-usenet
-      \t Disables Usenet searches.\n\n
-      Copyright 2009 - FreedomCoder\n"
+      puts "nHELP for Esearchy\n---------------------\n"
+      puts "--help, -h"
+      puts "\tWell I guess you know what this is for (To obtain this Help).\n"
+      puts "INPUT PARAMS:"
+      puts "--query, -q [@domain.com]"
+      puts "\t The domain name to search.\n"
+      puts "--company, -c [Company Inc]"
+      puts "\t The company name to search.\n"
+      puts "--website, -w [www.domain.com]"
+      puts "\t The website name to spider.\n"
+      puts "--yahookey, -y [key]"
+      puts "\t The Yahoo API Key .\n"
+      puts "--bingkey, -b [key]"
+      puts "\t The Bing API Key .\n"
+      puts "--filter, -p"
+      puts "\t The pattern to use to filter emails.(not fully implemented)\n"
+      puts "--file, -f [file_name] "
+      puts "\tIf we need to search more than one domain we can provide a list.\n"
+      puts "--output, -o"
+      puts "\tThe output file name.\n\n"
+      puts "PLUGIN OPTIONS:"
+      puts "--enable-all"
+      puts "\t Enables all ( Emails and People) searches.\n"
+      puts "--enable-people"
+      puts "\t Enables all People searches.\n"
+      puts "--enable-emails"
+      puts "\t Enables all Email searches.\n"
+      puts "--enable-google"
+      puts "\t Enables Google searches.\n"
+      puts "--enable-yahoo"
+      puts "\t Enables Yahoo searches.\n"
+      puts "--enable-bing"
+      puts "\t Enables Bing searches.\n"
+      puts "--enable-linkedin"
+      puts "\t Enables LinkedIn searches.\n"
+      puts "--enable-gprogiles"
+      puts "\t Enables Google Profiles searches.\n"
+      puts "--enable-naymz"
+      puts "\t Enables Naymz searches.\n"
+      puts "--enable-ggroups"
+      puts "\t Enables Google Groups searches.\n"
+      puts "--enable-pgp"
+      puts "\t Enables PGP searches.\n"
+      puts "--enable-usenet"
+      puts "\t Enables Usenet searches.\n\n"
+      puts "--disable-docs"
+      puts "\t Disables searches inside docs.\n\n"
+      puts "--disable-google"
+      puts "\t Disables Google searches.\n"
+      puts "--disable-yahoo"
+      puts "\t Disables Yahoo searches.\n"
+      puts "--disable-bing"
+      puts "\t Disables Bing searches.\n"
+      puts "--disable-linkedin"
+      puts "\t Disables LinkedIn searches.\n"
+      puts "--disable-gprogiles"
+      puts "\t Disables Google Profiles searches.\n"
+      puts "--disable-naymz"
+      puts "\t Disables Naymz searches.\n"
+      puts "--disable-ggroups"
+      puts "\t Disables Google Groups searches.\n"
+      puts "--disable-pgp"
+      puts "\t Disables PGP searches.\n"
+      puts "--disable-usenet"
+      puts "\t Disables Usenet searches.\n\n"
+      puts "Copyright 2009 - FreedomCoder\n"
       #END OF HELP
       exit(0)
-    when '--disable-google':
-      @email_engines.delete(:Google) 
-    when '--disable-yahoo':
-      @email_engines.delete(:Yahoo)
-    when '--disable-bing':
-      @email_engines.delete(:Bing)
-    when '--disable-altavisa':
-      @email_engines.delete(:Altavista)
-    when '--disable-spider':
-      @email_engines.delete(:Spider)
-    when '--disable-linkedin':
-      @people_engines.delete(:LinkedIn)
-    when '--disable-gprofiles':
-      @people_engines.delete(:GoogleProfiles)
-    when '--disable-naymz':
-      @people_engines.delete(:Naymz)
-    when '--disable-classmates':
-      @email_engines.delete(:Classmates)
-    when '--disable-ggroups':
-      @email_engines.delete(:GoogleGroups)
-    when '--disable-pgp':
-      @email_engines.delete(:PGP)
-    when '--disable-usenet':
-      @email_engines.delete(:Usenet)
-    when '--query':
+    when '--enable-all' then
+      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles]
+      @email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
+    when '--enable-people' then
+      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles]
+    when '--enable-emails' then
+      @email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
+    when '--enable-google' then
+      @email_engines << :Google
+    when '--enable-yahoo' then
+      @email_engines << :Yahoo
+    when '--enable-bing' then
+      @email_engines << :Bing
+    when '--enable-altavisa' then
+      @email_engines << :Altavista
+    when '--enable-spider' then
+      @email_engines << :Spider
+    when '--enable-linkedin' then
+      @people_engines << :LinkedIn
+    when '--enable-gprofiles' then
+      @people_engines << :GoogleProfiles
+    when '--enable-naymz' then
+      @people_engines << :Naymz
+    when '--enable-classmates' then
+      @email_engines << :Classmates
+    when '--enable-ggroups' then
+      @email_engines << :GoogleGroups
+    when '--enable-pgp' then
+      @email_engines << :PGP
+    when '--enable-usenet' then
+      @email_engines << :Usenet
+    when '--disable-people' then
+       @people_engines = []
+     when '--disable-emails' then
+       @email_engines = []
+     when '--disable-google' then
+       @email_engines.delete(:Google) 
+     when '--disable-yahoo' then
+       @email_engines.delete(:Yahoo)
+     when '--disable-bing' then
+       @email_engines.delete(:Bing)
+     when '--disable-altavisa' then
+       @email_engines.delete(:Altavista)
+     when '--disable-spider' then
+       @email_engines.delete(:Spider)
+     when '--disable-linkedin' then
+       @people_engines.delete(:LinkedIn)
+     when '--disable-gprofiles' then
+       @people_engines.delete(:GoogleProfiles)
+     when '--disable-naymz' then
+       @people_engines.delete(:Naymz)
+     when '--disable-classmates' then
+       @email_engines.delete(:Classmates)
+     when '--disable-ggroups' then
+       @email_engines.delete(:GoogleGroups)
+     when '--disable-pgp' then
+       @email_engines.delete(:PGP)
+     when '--disable-usenet' then
+       @email_engines.delete(:Usenet)
+     when '--disable-docs' then
+       @docs = false
+    when '--query' then
       @params[:query] = arg
-    when '--company':
+    when '--company' then
       @params[:company] = arg
-    when '--website':
+    when '--website' then
       @params[:website] = arg
-    when '--file':
+    when '--file' then
       if File.exists?(arg)
         File.open(arg,'r').each_line do |line|
           temp[:query],temp[:company],temp[:website] = line.split(',')
@@ -155,15 +231,15 @@ opts.each do |opt, arg|
         raise ArgumentError, "File not found"
         exit(0)
       end
-    when '--yahookey':
+    when '--yahookey' then
       @yahoo_key = arg
-    when '--bingkey':
+    when '--bingkey' then
       @bing_key = arg
-    when '--filter':
+    when '--filter' then
       @pattern = arg
-    when '--output':
+    when '--output' then
       @output = Output.new arg
-    when '--maxhits':
+    when '--maxhits' then
       @params[:maxhits] = arg.to_i
     else
       puts "Unknown command. Please try again"
@@ -184,11 +260,11 @@ def read_conf
   File.open(ENV['HOME'] + "/.esearchyrc").readlines.each do |line|
     key, value = line.split("=")
     case key
-    when "MAXHITS"
+    when "MAXHITS" then
       @params[:maxhits] ||= value.to_i
-    when "YAHOOKEY"
+    when "YAHOOKEY" then
       @yahoo_key ||= value
-    when "BINGKEY"
+    when "BINGKEY" then 
       @bing_key ||= value
     end
   end
@@ -218,7 +294,7 @@ def print_(list)
 end
   
 def print_linux(email)
-  if email.match(/#{ESearchy::Search.query.gsub("@","").split('.')[0]}/)
+  if email.match(/#{ESearchy::Search.query.gsub("@","").split('.')[0]}/i)
     puts "\033[31m" + email + "\033\[0m"
   else
     puts "\033[32m" + email + "\033\[0m"
@@ -226,10 +302,10 @@ def print_linux(email)
 end
   
 def print_windows(email)
-  if email.match(/#{ESearchy::Search.query.gsub("@","").split('.')[0]}/)
-    Wcol::puts(12, email)
+  if email.match(/#{ESearchy::Search.query.gsub("@","").split('.')[0]}/i)
+    Wcol.puts(12, email)
   else
-    Wcol::puts(2, email)
+    Wcol.puts(2, email)
   end
 end
 
@@ -258,6 +334,9 @@ class Output
   end
   
   def save_pdf(data)
+    require 'prawn'
+    require 'prawn/layout'
+    
     Prawn::Document.generate(name) do  
       table data, 
         :position => :center, 
@@ -271,6 +350,7 @@ class Output
   end
   
   def save_sqlite(data)
+    require 'sqlite3'
     @db = SQLite3::Database.new(file)
     @db.execute("CREATE TABLE IF NOT EXISTS results (
       id integer primary key asc, 
@@ -292,21 +372,27 @@ def execute(p)
     search = ESearchy::Search.new(p)
     
     search.start do |s|
-      s.Emails(@email_engines) do |e|
-        e.Yahoo.appid= @yahoo_key if @yahoo_key
-        e.Bing.appid= @bing_key if @bing_key
-        e.search do |x|
-          dump(x.results)
-          print_(x.emails.uniq)
-        end
-        e.docs do |x| 
-          dump(x.results)
-          print_(x.emails.uniq)
+      unless @email_engines.empty?
+        s.Emails(@email_engines) do |e|
+          e.Yahoo.appid= @yahoo_key if @yahoo_key and @email_engines.include?(:Yahoo)
+          e.Bing.appid= @bing_key if @bing_key and @email_engines.include?(:Bing)
+          e.search do |x|
+            dump(x.results)
+            print_(x.emails.uniq)
+          end
+          if @docs
+            e.docs do |x| 
+              dump(x.results)
+              print_(x.emails.uniq)
+            end
+          end
         end
       end
-    
-      s.People(@people_engines) do |p|
-        p.search { |p| dump(p.results) }
+      
+      unless @people_engines.empty?
+        s.People(@people_engines) do |p|
+          p.search { |p| dump(p.results) }
+        end
       end
     end
     @output.save(search.results) if @output
@@ -315,14 +401,21 @@ def execute(p)
     print_ search.people
   end
 end
-
-puts "\033[31m------------------------------------------------------------------------------\033\[0m"
-puts "\033[31m ||---- \033\[0m   //---  ||----      __       //----\\\\    //---  ||     ||   \\\\  // "
-puts "\033[31m ||     \033\[0m  //      ||         // \\\\     ||     \\\\  //      ||     ||    \\\\//"
-puts "\033[31m ||---- \033\[0m  \\\\      ||----    //   \\\\    ||----//  ||       ||-----||     //   "
-puts "\033[31m ||     \033\[0m    \\\\    ||       //-----\\\\   ||   \\\\    \\\\      ||     ||    //"
-puts "\033[31m ||---- \033\[0m ---//    ||----  //       \\\\  ||    \\\\    \\\\---  ||     ||   //   "
-puts "\033[31m------------------------------------------------------------------------------\033\[0m"
+if  RUBY_PLATFORM =~ /mingw|mswin/ 
+  puts "___________ _________                           .__          " 
+  puts "\_   _____//   _____/ ____ _____ _______   ____ |  |__ ___.__."
+  puts " |    __)_ \_____  \_/ __ \\__  \\_  __ \_/ ___\|  |  <   |  |"
+  puts " |        \/        \  ___/ / __ \|  | \/\  \___|   Y  \___  |"
+  puts "/_______  /_______  /\___  >____  /__|    \___  >___|  / ____|"
+  puts "        \/        \/     \/     \/            \/     \/\/     "
+else
+  puts "\033[31m___________ \033\[0m_________                           .__          " 
+  puts "\033[31m\\_   _____/\033\[0m/   _____/ ____ _____ _______   ____ |  |__ ___.__."
+  puts "\033[31m |    __)_ \033\[0m\\_____  \\_/ __ \\\\__  \\\\_  __ \\_/ ___\\|  |  <   |  |"
+  puts "\033[31m |        \\\033\[0m/        \\  ___/ / __ \\|  | \\/\\  \\___|   Y  \\___  |"
+  puts "\033[31m/_______  /\033\[0m_______  /\\___  >____  /__|    \___  >___|  / ____|"
+  puts "\033[31m        \\/\033\[0m        \\/     \\/     \\/            \\/    \\/\\/"
+end
 puts "\n"                                            
 puts "DISCLOSURE: This is just an example tool ESearchy is more and more a piece 
 of code intended to work as a Library and you should create your own little.rb file :)"

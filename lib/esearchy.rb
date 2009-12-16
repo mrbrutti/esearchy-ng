@@ -10,7 +10,7 @@ require 'pdf/reader'
 if RUBY_PLATFORM =~ /mingw|mswin/
  require 'win32ole'
 end
-require 'ldap' # gem install ruby-ldap
+#require 'ldap' # gem install ruby-ldap
 
 #ESEARCHY REQUIRES
 require 'esearchy/genericengine'

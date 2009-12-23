@@ -417,11 +417,12 @@ else
   puts "\033[31m        \\/\033\[0m        \\/     \\/     \\/            \\/    \\/\\/"
 end
 puts "\n"                                            
-puts "DISCLOSURE: This is just an example tool ESearchy is more and more a piece 
-of code intended to work as a Library and you should create your own little.rb file :)"
+puts "DISCLOSURE: This is just an example tool for the library. ESearchy is intended 
+to work as a Library/Framework and you should create your own scripts :)"
 puts "------------------------------------------------------------------------"
 puts "REMINDER:" 
-puts "- if you want to use GoogleProfiles, LinkedIn, Classmates or Naymz, you will need to use the --company (-c) <company_name> option"
+puts "- if you want to use GoogleProfiles, LinkedIn, Classmates or Naymz,"
+puts "  you will need to use the --company (-c) <company_name> option"
 puts "- If you want to spider a website you need to use the --website (-w) <URL> option"
 
 

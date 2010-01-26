@@ -38,7 +38,8 @@ module ESearchy
       :LinkedIn       => ESearchy::SocialEngines::LinkedIn, 
       :GoogleProfiles => ESearchy::SocialEngines::GoogleProfiles, 
       :Naymz          => ESearchy::SocialEngines::Naymz,
-      :Classmates     => ESearchy::SocialEngines::Classmates
+      :Classmates     => ESearchy::SocialEngines::Classmates,
+      :Spoke          => ESearchy::SocialEngines::Spoke
       }
       
     def initialize(args, &block)    
@@ -53,6 +54,12 @@ module ESearchy
       $results = []
       block.call(self) if block_given?
     end
+    
+    def start(&block)
+      block.call(self)
+    end
+    
+    # Global Attributes 
     
     def self.query
       @@query
@@ -73,11 +80,7 @@ module ESearchy
     def maxhits
       @@maxhits
     end
-    
-    def start(&block)
-      block.call(self)
-    end
-    
+       
     def emails
       $emails
     end

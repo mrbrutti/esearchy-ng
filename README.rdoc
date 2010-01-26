@@ -13,6 +13,7 @@ Esearchy is a small library capable of searching the internet for email addresse
   * Google Profiles ( Based on DigiNinja's idea http://www.digininja.org/projects/gpscan.php)
   * Naymz
   * Classmantes
+  * Spoke
 * Other Engines
   * PGP servers
   * Usenets

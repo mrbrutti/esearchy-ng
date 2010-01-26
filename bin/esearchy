@@ -56,6 +56,7 @@ opts = GetoptLong.new(
   [ '--enable-gprofiles', GetoptLong::NO_ARGUMENT ],
   [ '--enable-naymz', GetoptLong::NO_ARGUMENT ],
   [ '--enable-ggroups', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-spoke', GetoptLong::NO_ARGUMENT ],
   [ '--enable-pgp', GetoptLong::NO_ARGUMENT ],
   [ '--enable-usenet', GetoptLong::NO_ARGUMENT ],
   [ '--enable-spider', GetoptLong::NO_ARGUMENT ],
@@ -67,6 +68,7 @@ opts = GetoptLong.new(
   [ '--disable-gprofiles', GetoptLong::NO_ARGUMENT ],
   [ '--disable-naymz', GetoptLong::NO_ARGUMENT ],
   [ '--disable-ggroups', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-spoke', GetoptLong::NO_ARGUMENT ],
   [ '--disable-pgp', GetoptLong::NO_ARGUMENT ],
   [ '--disable-usenet', GetoptLong::NO_ARGUMENT ],
   [ '--disable-spider', GetoptLong::NO_ARGUMENT ],
@@ -155,10 +157,10 @@ opts.each do |opt, arg|
       #END OF HELP
       exit(0)
     when '--enable-all' then
-      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles]
+      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, :Spoke]
       @email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
     when '--enable-people' then
-      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles]
+      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, :Spoke]
     when '--enable-emails' then
       @email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
     when '--enable-google' then
@@ -181,6 +183,8 @@ opts.each do |opt, arg|
       @email_engines << :Classmates
     when '--enable-ggroups' then
       @email_engines << :GoogleGroups
+    when '--enable-spoke' then
+      @people_engines << :Spoke
     when '--enable-pgp' then
       @email_engines << :PGP
     when '--enable-usenet' then
@@ -209,6 +213,8 @@ opts.each do |opt, arg|
        @email_engines.delete(:Classmates)
      when '--disable-ggroups' then
        @email_engines.delete(:GoogleGroups)
+     when '--disable-spoke' then
+       @people_engines.delete(:Spoke)
      when '--disable-pgp' then
        @email_engines.delete(:PGP)
      when '--disable-usenet' then

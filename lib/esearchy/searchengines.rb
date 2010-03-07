@@ -1,4 +1,4 @@
-require 'esearchy/searchengines/google'
-require 'esearchy/searchengines/bing'
-require 'esearchy/searchengines/yahoo'
-require 'esearchy/searchengines/altavista'
+require 'esearchy/SearchEngines/google'
+require 'esearchy/SearchEngines/bing'
+require 'esearchy/SearchEngines/yahoo'
+require 'esearchy/SearchEngines/altavista'

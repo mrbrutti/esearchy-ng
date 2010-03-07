@@ -1,1 +1,1 @@
-require 'esearchy/localengines/directory'
+require 'esearchy/LocalEngines/directory'

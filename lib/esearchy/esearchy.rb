@@ -3,7 +3,7 @@ def D m
 end
 
 module ESearchy
-  
+  VERSION = "0.2.0.5"
   @@log = false
   #BUGMENOT = ESearchy::Bugmenot::fetch("linkedin.com")
   

@@ -58,6 +58,10 @@ module ESearchy
         end
       rescue Net::HTTPFatalError
         D "Error: Something went wrong with the HTTP request"
+      rescue Net::HTTPServerException
+        D "Error: Something went wrong with the HTTP request"
+      rescue 
+        D "Error: Something went wrong :("
       end
     end
     
@@ -133,7 +137,7 @@ module ESearchy
       @emails.concat(c_list).uniq!
       c_list.zip do |e| 
         @results << [e[0], "E", self.class.to_s.upcase, 
-                     e[0].match(/#{CGI.unescape(@query).gsub("@","").split('.')[0]}/) ? "T" : "F"]
+            e[0].downcase.match(/#{CGI.unescape(@query).gsub("@","").split('.')[0]}/) ? "T" : "F"]
       end
     end
     

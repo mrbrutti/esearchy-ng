@@ -3,9 +3,8 @@ def D m
 end
 
 module ESearchy
-  VERSION = "0.2.0.5"
+  VERSION = "0.2.0.6"
   @@log = false
-  #BUGMENOT = ESearchy::Bugmenot::fetch("linkedin.com")
   
   def self.log
     @@log
@@ -39,7 +38,10 @@ module ESearchy
       :GoogleProfiles => ESearchy::SocialEngines::GoogleProfiles, 
       :Naymz          => ESearchy::SocialEngines::Naymz,
       :Classmates     => ESearchy::SocialEngines::Classmates,
-      :Spoke          => ESearchy::SocialEngines::Spoke
+      :Spoke          => ESearchy::SocialEngines::Spoke,
+      :JigSaw         => ESearchy::SocialEngines::JigSaw,
+      :Ziggs          => ESearchy::SocialEngines::Ziggs,
+      :Plaxo          => ESearchy::SocialEngines::Plaxo
       }
       
     def initialize(args, &block)    

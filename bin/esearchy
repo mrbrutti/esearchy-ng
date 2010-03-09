@@ -58,6 +58,9 @@ opts = GetoptLong.new(
   [ '--enable-naymz', GetoptLong::NO_ARGUMENT ],
   [ '--enable-ggroups', GetoptLong::NO_ARGUMENT ],
   [ '--enable-spoke', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-jigsaw', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-ziggs', GetoptLong::NO_ARGUMENT ],
+  [ '--enable-plaxo', GetoptLong::NO_ARGUMENT ],
   [ '--enable-pgp', GetoptLong::NO_ARGUMENT ],
   [ '--enable-usenet', GetoptLong::NO_ARGUMENT ],
   [ '--enable-spider', GetoptLong::NO_ARGUMENT ],
@@ -70,6 +73,9 @@ opts = GetoptLong.new(
   [ '--disable-naymz', GetoptLong::NO_ARGUMENT ],
   [ '--disable-ggroups', GetoptLong::NO_ARGUMENT ],
   [ '--disable-spoke', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-jigsaw', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-ziggs', GetoptLong::NO_ARGUMENT ],
+  [ '--disable-plaxo', GetoptLong::NO_ARGUMENT ],
   [ '--disable-pgp', GetoptLong::NO_ARGUMENT ],
   [ '--disable-usenet', GetoptLong::NO_ARGUMENT ],
   [ '--disable-spider', GetoptLong::NO_ARGUMENT ],
@@ -309,6 +315,12 @@ opts.each do |opt, arg|
       puts "\t Enables Spoke searches.\n"
       puts "--enable-ggroups"
       puts "\t Enables Google Groups searches.\n"
+      puts "--enable-jigsaw"
+      puts "\t Enables Jigsaw searches.\n"
+      puts "--enable-ziggs"
+      puts "\t Enables Ziggs searches.\n"
+      puts "--enable-plaxo"
+      puts "\t Enables Plaxo searches.\n"
       puts "--enable-pgp"
       puts "\t Enables PGP searches.\n"
       puts "--enable-usenet"
@@ -329,6 +341,12 @@ opts.each do |opt, arg|
       puts "\t Disables Naymz searches.\n"
       puts "--disable-spoke"
       puts "\t Disables Spoke searches.\n"
+      puts "--disable-jigsaw"
+      puts "\t Disables Jigsaw searches.\n"
+      puts "--disable-ziggs"
+      puts "\t Disables Ziggs searches.\n"
+      puts "--disable-plaxo"
+      puts "\t Disables Plaxo searches.\n"
       puts "--disable-ggroups"
       puts "\t Disables Google Groups searches.\n"
       puts "--disable-pgp"
@@ -339,7 +357,8 @@ opts.each do |opt, arg|
       #END OF HELP
       exit(0)
     when '--enable-all' then
-      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, :Spoke]
+      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, 
+                         :Spoke, :JigSaw, :Ziggs, :Plaxo]
       @email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
     when '--enable-people' then
       @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, :Spoke]
@@ -367,6 +386,12 @@ opts.each do |opt, arg|
       @email_engines << :GoogleGroups
     when '--enable-spoke' then
       @people_engines << :Spoke
+    when '--enable-jigsaw' then
+      @people_engines << :JigSaw
+    when '--enable-ziggs' then
+      @people_engines << :Ziggs
+    when '--enable-plaxo' then
+      @people_engines << :Plaxo
     when '--enable-pgp' then
       @email_engines << :PGP
     when '--enable-usenet' then
@@ -397,6 +422,12 @@ opts.each do |opt, arg|
        @email_engines.delete(:GoogleGroups)
      when '--disable-spoke' then
        @people_engines.delete(:Spoke)
+     when '--disable-jigsaw' then
+       @people_engines.delete(:JigSaw)
+     when '--disable-ziggs' then
+       @people_engines.delete(:Ziggs)
+     when '--disable-plaxo' then
+       @people_engines.delete(:Plaxo)
      when '--disable-pgp' then
        @email_engines.delete(:PGP)
      when '--disable-usenet' then

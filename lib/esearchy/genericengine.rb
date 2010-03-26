@@ -64,7 +64,7 @@ module ESearchy
         D "Error: Something went wrong :("
       end
     end
-    
+        
     def header
       begin
         return self.class::HEADER
@@ -136,7 +136,7 @@ module ESearchy
       c_list = fix(list)
       @emails.concat(c_list).uniq!
       c_list.zip do |e| 
-        @results << [e[0], "E", self.class.to_s.upcase, 
+        @results << [e[0], "E", "",self.class.to_s.upcase, 
             e[0].downcase.match(/#{CGI.unescape(@query).gsub("@","").split('.')[0]}/) ? "T" : "F"]
       end
     end

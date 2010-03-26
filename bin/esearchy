@@ -28,14 +28,15 @@ end
 
 require 'rubygems'
 require 'getoptlong'
-require 'esearchy'
+require '../lib/esearchy'
 
 ESearchy::log = true
-
+ESearchy::Profiling.new([1,2])
 @yahoo_key  = nil
 @bing_key   = nil
 @maxhits    = nil
 @docs       = true
+@profiling  = false
 @params     = {}
 @list       = []
 @output     = nil
@@ -64,6 +65,7 @@ opts = GetoptLong.new(
   [ '--enable-pgp', GetoptLong::NO_ARGUMENT ],
   [ '--enable-usenet', GetoptLong::NO_ARGUMENT ],
   [ '--enable-spider', GetoptLong::NO_ARGUMENT ],
+  [ '--profiling', GetoptLong::NO_ARGUMENT ],
   [ '--disable-google', GetoptLong::NO_ARGUMENT ],
   [ '--disable-yahoo', GetoptLong::NO_ARGUMENT ],
   [ '--disable-bing', GetoptLong::NO_ARGUMENT ],
@@ -190,7 +192,7 @@ class Output
   private 
   def save_csv(data)
     out = File.new(@output, "w")
-    out << "EMAILS/PERSON, TYPE, CLASS, MATCH\n"
+    out << "EMAILS/PERSON, TYPE, SITE, CLASS, MATCH\n"
     data.each { |r| out << "#{r[0].to_s},#{r[1]},#{r[2]},#{r[3]}\n"}  
   end
   
@@ -201,7 +203,7 @@ class Output
     Prawn::Document.generate(@output) do  
       table data, 
         :position => :center, 
-        :headers => ["Email/Person", "Type", "Class", "Match"],
+        :headers => ["Email/Person", "Type", "Site", "Class", "Match"],
         :header_color => "0046f9",
         :row_colors => :pdf_writer, #["ffffff","ffff00"],
         :font_size => 10,
@@ -217,12 +219,13 @@ class Output
       id integer primary key asc, 
       object text, 
       type char, 
+      site text,
       class text,
       match char);")
       
     data.each do |r| 
-      @db.execute("INSERT INTO results (object,type,class,match) 
-                   VALUES (\"#{r[0].to_s}\",\"#{r[1]}\",\"#{r[2]}\",\"#{r[3]}\");")
+      @db.execute("INSERT INTO results (object,type,site,class,match) 
+                   VALUES (\"#{r[0].to_s}\",\"#{r[1]}\",\"#{r[2]}\",\"#{r[3]}\",\"#{r[4]}\");")
     end
     #@db.commit        
   end
@@ -256,10 +259,22 @@ def execute(p)
         end
       end
     end
+    
+    if @profiling
+      puts "Gathering Profile data from people"
+      puts "----------------------------------\n"
+      res = ESearchy::SocialEngines::Profi.new(search.people)
+      res.search
+      search.people.concat(res.people)
+      search.people.concat(res.results)
+    end
+    
     @output.save(search.results) if @output
     puts "-------FINAL RESULTS--------"
-    print_ search.emails
-    print_ search.people
+    print_ search.emails.uniq
+    search.people.each do |person, profile|
+      puts person.join(" ") + " -> " + profile
+    end
   end
 end
 
@@ -325,6 +340,8 @@ opts.each do |opt, arg|
       puts "\t Enables PGP searches.\n"
       puts "--enable-usenet"
       puts "\t Enables Usenet searches.\n"
+      puts "--profiling"
+      puts "\t Enables People's profiling.\n"
       puts "--disable-docs"
       puts "\t Disables searches inside docs.\n"
       puts "--disable-google"
@@ -357,11 +374,12 @@ opts.each do |opt, arg|
       #END OF HELP
       exit(0)
     when '--enable-all' then
-      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, 
+      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles,
                          :Spoke, :JigSaw, :Ziggs, :Plaxo]
       @email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
     when '--enable-people' then
-      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, :Spoke]
+      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, 
+                         :Spoke, :JigSaw, :Ziggs, :Plaxo]
     when '--enable-emails' then
       @email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
     when '--enable-google' then
@@ -397,43 +415,45 @@ opts.each do |opt, arg|
     when '--enable-usenet' then
       @email_engines << :Usenet
     when '--disable-people' then
-       @people_engines = []
-     when '--disable-emails' then
-       @email_engines = []
-     when '--disable-google' then
-       @email_engines.delete(:Google) 
-     when '--disable-yahoo' then
-       @email_engines.delete(:Yahoo)
-     when '--disable-bing' then
-       @email_engines.delete(:Bing)
-     when '--disable-altavisa' then
-       @email_engines.delete(:Altavista)
-     when '--disable-spider' then
-       @email_engines.delete(:Spider)
-     when '--disable-linkedin' then
-       @people_engines.delete(:LinkedIn)
-     when '--disable-gprofiles' then
-       @people_engines.delete(:GoogleProfiles)
-     when '--disable-naymz' then
-       @people_engines.delete(:Naymz)
-     when '--disable-classmates' then
-       @email_engines.delete(:Classmates)
-     when '--disable-ggroups' then
-       @email_engines.delete(:GoogleGroups)
-     when '--disable-spoke' then
-       @people_engines.delete(:Spoke)
-     when '--disable-jigsaw' then
-       @people_engines.delete(:JigSaw)
-     when '--disable-ziggs' then
-       @people_engines.delete(:Ziggs)
-     when '--disable-plaxo' then
-       @people_engines.delete(:Plaxo)
-     when '--disable-pgp' then
-       @email_engines.delete(:PGP)
-     when '--disable-usenet' then
-       @email_engines.delete(:Usenet)
-     when '--disable-docs' then
-       @docs = false
+      @people_engines = []
+    when '--disable-emails' then
+      @email_engines = []
+    when '--disable-google' then
+      @email_engines.delete(:Google) 
+    when '--disable-yahoo' then
+      @email_engines.delete(:Yahoo)
+    when '--disable-bing' then
+      @email_engines.delete(:Bing)
+    when '--disable-altavisa' then
+      @email_engines.delete(:Altavista)
+    when '--disable-spider' then
+      @email_engines.delete(:Spider)
+    when '--disable-linkedin' then
+      @people_engines.delete(:LinkedIn)
+    when '--disable-gprofiles' then
+      @people_engines.delete(:GoogleProfiles)
+    when '--disable-naymz' then
+      @people_engines.delete(:Naymz)
+    when '--disable-classmates' then
+      @email_engines.delete(:Classmates)
+    when '--disable-ggroups' then
+      @email_engines.delete(:GoogleGroups)
+    when '--disable-spoke' then
+      @people_engines.delete(:Spoke)
+    when '--disable-jigsaw' then
+      @people_engines.delete(:JigSaw)
+    when '--disable-ziggs' then
+      @people_engines.delete(:Ziggs)
+    when '--disable-plaxo' then
+      @people_engines.delete(:Plaxo)
+    when '--disable-pgp' then
+      @email_engines.delete(:PGP)
+    when '--disable-usenet' then
+      @email_engines.delete(:Usenet)
+    when '--disable-docs' then
+      @docs = false
+    when '--profiling' then
+      @profiling = true
     when '--query' then
       @params[:query] = arg
     when '--company' then

@@ -26,9 +26,10 @@ module ESearchy
       
       def crawl_people(text)
         text.scan(/<a href="([0-9A-Za-z:\\\/?&=@+%.;"'()_-]+)" class=l[\sonmousedown="return clk(this.href,'','','res','\d','')"]*>([\w\s]*) -/).each do |profile|
+          pf = profile[0].to_s
           p = profile[1].split(" ")
-          @people << p
-          @results << [p, "P", self.class.to_s.upcase, "N"]
+          @people << [ p, pf ]
+          @results << [p, "P", pf, self.class.to_s.upcase, "N"]
         end
       end
     end

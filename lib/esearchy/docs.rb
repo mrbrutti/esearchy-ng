@@ -249,7 +249,7 @@ module ESearchy
         c_list = fix(list)
         @emails.concat(c_list).uniq!
         c_list.zip do |e| 
-          @results << [e[0], "E", self.class.to_s.upcase, 
+          @results << [e[0], "E", "",self.class.to_s.upcase, 
            e[0].match(/#{CGI.unescape(ESearchy::Search.query).gsub("@","").split('.')[0]}/) ? "T" : "F"]
         end
       end

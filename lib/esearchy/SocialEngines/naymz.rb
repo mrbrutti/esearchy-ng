@@ -24,11 +24,12 @@ module ESearchy
       
       def crawl_people(html)
         html.scan(/<a href="([0-9A-Za-z:\\\/?&=@+%.;"'()_-]+)" class=l[\sonmousedown="return clk(this.href,'','','res','\d','')"]*>([\w\s]*) -/).each do |profile|
-          person = profile[1].split(" ").delete_if do 
+          pf = profile[0].to_s
+          p = profile[1].split(" ").delete_if do 
             |x| x =~ /mr.|mr|ms.|ms|phd.|dr.|dr|phd|phd./i
           end
-          @people << person
-          @results << [person, "P", self.class.to_s.upcase, "N"]
+          @people << [ p, pf ]
+          @results << [p, "P", pf, self.class.to_s.upcase, "N"]
         end
       end
     end

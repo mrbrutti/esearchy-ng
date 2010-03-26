@@ -22,12 +22,13 @@ module ESearchy
           @totalhits = totalhits(hits[0][0].gsub(",","").to_i)
         end
       end
-      
+            
       def crawl_people(text)
         text.scan(/<a href="([0-9A-Za-z:\\\/?&=@+%.;"'()_-]+)" class=l[\sonmousedown="return clk(this.href,'','','res','\d','')"]*>([\w\s]*),/).each do |profile|
-          name,last = profile[1].split(" ")
-          @people << [name,last]
-          @results << [[name,last], "P", self.class.to_s.upcase, "N"]
+          pf = profile[0].to_s
+          p = profile[1].split(" ")
+          @people << [ p, pf ]
+          @results << [p, "P", pf, self.class.to_s.upcase, "N"]
         end
       end
     end

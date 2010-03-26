@@ -1,0 +1,44 @@
+<html>
+<head>
+<script src="js/raphael.js" type="text/javascript" charset="utf-8"></script> 
+<script>
+window.onload = function () {
+var paper = Raphael(10, 50, 320, 200);
+// Canvas is created at the top left corner of the #notepad element
+// (or its top right corner in dir="rtl" elements)
+var paper = Raphael(document.getElementById("notepad"), 640, 300);
+// Same as above
+var paper = Raphael("notepad", 320, 200);
+// Image dump
+var set = Raphael(["notepad", 320, 200, {
+    type: "rect",
+    x: 10,
+    y: 10,
+    width: 25,
+    height: 25,
+    stroke: "#f00"
+}, {
+    type: "text",
+    x: 30,
+    y: 40,
+    text: "Dump"
+}]);
+
+var c = paper.circle(50, 50, 40);
+}
+</script>
+<style type="text/css" media="screen"> 
+    #holder {
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        border: solid 1px #333;
+    }
+    p {
+        text-align: center;
+    }
+</style>
+</head>
+<body id="test">
+	<div id="notepad"></div> 
+</body>
+</html>

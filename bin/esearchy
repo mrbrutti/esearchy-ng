@@ -28,10 +28,9 @@ end
 
 require 'rubygems'
 require 'getoptlong'
-require '../lib/esearchy'
+require 'esearchy'
 
 ESearchy::log = true
-ESearchy::Profiling.new([1,2])
 @yahoo_key  = nil
 @bing_key   = nil
 @maxhits    = nil
@@ -157,7 +156,7 @@ def print_(list)
 end
   
 def print_linux(email)
-  if email.match(/#{ESearchy::Search.query.gsub("@","").split('.')[0]}/i)
+  if email.match(/#{ESearchy::Search.query.gsub("*","").gsub("@","").split('.')[0]}/i)
     puts "\033[31m" + email + "\033\[0m"
   else
     puts "\033[32m" + email + "\033\[0m"
@@ -165,7 +164,7 @@ def print_linux(email)
 end
   
 def print_windows(email)
-  if email.match(/#{ESearchy::Search.query.gsub("@","").split('.')[0]}/i)
+  if email.match(/#{ESearchy::Search.query.gsub("*","").gsub("@","").split('.')[0]}/i)
     Wcol.puts(12, email)
   else
     Wcol.puts(2, email)
@@ -210,6 +209,10 @@ class Output
         :vertical_padding => 2,
         :horizontal_padding => 5
     end
+  end
+  
+  def save_html(data)
+    
   end
   
   def save_sqlite(data)
@@ -263,16 +266,16 @@ def execute(p)
     if @profiling
       puts "Gathering Profile data from people"
       puts "----------------------------------\n"
-      res = ESearchy::SocialEngines::Profi.new(search.people)
+      res = ESearchy::Profiling.new(search.people.uniq)
       res.search
       search.people.concat(res.people)
-      search.people.concat(res.results)
+      search.results.concat(res.results)
     end
     
     @output.save(search.results) if @output
-    puts "-------FINAL RESULTS--------"
+    puts "\n-------==< FINAL RESULTS >==--------"
     print_ search.emails.uniq
-    search.people.each do |person, profile|
+    search.people.uniq.each do |person, profile|
       puts person.join(" ") + " -> " + profile
     end
   end

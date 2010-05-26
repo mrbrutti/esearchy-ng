@@ -110,9 +110,6 @@ window.onload = function () {
     connections.push(r.connection(shapes[2], shapes[13], "#fff", "#fff|3"));
 		connections.push(r.connection(shapes[3], shapes[14], "#fff", "#fff|3"));
     
-		var layouter = new Raphael.Layout.Spring(r);
-    layouter.layout();
-		r.draw();
 		
 		document.onmousemove = function (e) {
         e = e || window.event;

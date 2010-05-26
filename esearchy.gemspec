@@ -1,6 +1,6 @@
 SPEC = Gem::Specification.new do |s| 
   s.name = "esearchy"
-  s.version = "0.2.0.7"
+  s.version = "0.2.0.8"
   s.author = "Matias P. Brutti"
   s.email = "matiasbrutti@gmail.com"
   s.homepage = "http://freedomcoder.com.ar/esearchy"

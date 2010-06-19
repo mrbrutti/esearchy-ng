@@ -54,8 +54,8 @@ module ESearchy
             block.call(response)
           when Net::HTTPRedirection
             get(URI.parse(response['location']).host, 
-                URI.parse(response['location']).port,
-                querystring, headers, limit - 1, block)
+                URI.parse(response['location']).port.to_i,
+                querystring, headers, limit - 1, &block)
           else
             return response.error!
           end
@@ -65,7 +65,7 @@ module ESearchy
       rescue Net::HTTPServerException
         D "Error: Something went wrong with the HTTP request"
       rescue 
-        D "Error: Something went wrong :("
+        D "Error: Something went wrong :( + #{$!}"
       end
     end
         

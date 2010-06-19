@@ -3,7 +3,7 @@ def D m
 end
 
 module ESearchy
-  VERSION = "0.2.0.8"
+  VERSION = "0.2.1"
   @@log = false
   
   def self.log

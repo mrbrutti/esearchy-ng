@@ -43,15 +43,19 @@ module ESearchy
     
     private
     
-    def get(url, port, querystring = "/", headers = {}, &block)
+    def get(url, port, querystring = "/", headers = {}, limit = 10, &block)
       http = Net::HTTP.new(url,port)
       begin
         http.start do |http|
           request = Net::HTTP::Get.new(querystring, headers)
           response = http.request(request)
           case response
-          when Net::HTTPSuccess, Net::HTTPRedirection
+          when Net::HTTPSuccess
             block.call(response)
+          when Net::HTTPRedirection
+            get(URI.parse(response['location']).host, 
+                URI.parse(response['location']).port,
+                querystring, headers, limit - 1, block)
           else
             return response.error!
           end

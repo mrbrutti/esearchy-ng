@@ -89,7 +89,8 @@ opts = GetoptLong.new(
   [ '--output','-o', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--yahookey','-y', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--bingkey','-b', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--maxhits','-m', GetoptLong::REQUIRED_ARGUMENT ]
+  [ '--maxhits','-m', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--proxy', GetoptLong::REQUIRED_ARGUMENT]
 )
 
 def logo
@@ -373,7 +374,9 @@ opts.each do |opt, arg|
       puts "\t Disables PGP searches.\n"
       puts "--disable-usenet"
       puts "\t Disables Usenet searches.\n\n"
-      puts "Copyright 2009 - FreedomCoder\n"
+      puts "--proxy [127.0.0.1:8080]"
+      puts "\t Setup a proxy.\n"
+      puts "Copyright 2010 - FreedomCoder\n"
       #END OF HELP
       exit(0)
     when '--enable-all' then
@@ -483,6 +486,11 @@ opts.each do |opt, arg|
       @output = Output.new arg
     when '--maxhits' then
       @params[:maxhits] = arg.to_i
+    when '--proxy' then
+      require 'socksify'
+      url, port = arg.split(":")
+      TCPSocket::socks_server = url
+      TCPSocket::socks_port = port.to_i
     else
       puts "Unknown command. Please try again"
       exit(0)

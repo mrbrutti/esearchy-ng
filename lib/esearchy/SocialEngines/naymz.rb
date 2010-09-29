@@ -25,6 +25,7 @@ module ESearchy
       def crawl_people(html)
         html.scan(/<a href="([0-9A-Za-z:\\\/?&=@+%.;"'()_-]+)" class=l[\sonmousedown="return clk(this.href,'','','res','\d','')"]*>([\w\s]*) -/).each do |profile|
           pf = profile[0].to_s
+          pf = pf.scan(/\/url\?q=([0-9A-Za-z:\\\/?=@+%.;"'()_-]+)&amp/).to_s if pf.match(/\/url\?q=/)
           p = profile[1].split(" ").delete_if do 
             |x| x =~ /mr.|mr|ms.|ms|phd.|dr.|dr|phd|phd./i
           end

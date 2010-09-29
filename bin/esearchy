@@ -192,7 +192,7 @@ class Output
   private 
   def save_csv(data)
     out = File.new(@output, "w")
-    out << "EMAILS/PERSON, TYPE, SITE, CLASS, MATCH\n"
+    out << "ENTITY, TYPE, SITE, CLASS, MATCH\n"
     data.each { |r| out << "#{r[0].to_s},#{r[1]},#{r[2]},#{r[3]}\n"}  
   end
   
@@ -203,7 +203,7 @@ class Output
     Prawn::Document.generate(@output) do  
       table data, 
         :position => :center, 
-        :headers => ["Email/Person", "Type", "Site", "Class", "Match"],
+        :headers => ["Entity", "Type", "Site", "Class", "Match"],
         :header_color => "0046f9",
         :row_colors => :pdf_writer, #["ffffff","ffff00"],
         :font_size => 10,
@@ -221,14 +221,14 @@ class Output
     @db = SQLite3::Database.new(@output)
     @db.execute("CREATE TABLE IF NOT EXISTS results (
       id integer primary key asc, 
-      object text, 
+      entity text, 
       type char, 
       site text,
       class text,
       match char);")
       
     data.each do |r| 
-      @db.execute("INSERT INTO results (object,type,site,class,match) 
+      @db.execute("INSERT INTO results (entity,type,site,class,match) 
                    VALUES (\"#{r[0].to_s}\",\"#{r[1]}\",\"#{r[2]}\",\"#{r[3]}\",\"#{r[4]}\");")
     end
     #@db.commit        
@@ -380,8 +380,8 @@ opts.each do |opt, arg|
       #END OF HELP
       exit(0)
     when '--enable-all' then
-      @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles,
-                         :Spoke, :JigSaw, :Ziggs, :Plaxo]
+      @people_engines = [:LinkedIn, :Naymz,  :Classmates, :GoogleProfiles,
+                         :Spoke,    :JigSaw, :Ziggs,      :Plaxo]
       @email_engines = [:Google, :Bing, :Yahoo, :Altavista, :PGP, :Spider ,:Usenet, :GoogleGroups ]
     when '--enable-people' then
       @people_engines = [:LinkedIn, :Naymz, :Classmates, :GoogleProfiles, 
@@ -503,7 +503,6 @@ puts "REMINDER:"
 puts "- if you want to use GoogleProfiles, LinkedIn, Classmates or Naymz,"
 puts "  you will need to use the --company (-c) <company_name> option"
 puts "- If you want to spider a website you need to use the --website (-w) <URL> option"
-
 
 unless File.exist?(ENV['HOME'] + "/.esearchyrc")
   configure(@params[:maxhits],@yahoo_key,@bing_key)

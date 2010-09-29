@@ -27,6 +27,7 @@ module ESearchy
       def crawl_people(text)
         text.scan(/<a href="(http\:\/\/www.jigsaw.com\/scid[0-9A-Za-z\/?&=@+%.;'_-]+\.xhtml)" class=l[\sonmousedown="return clk(this.href,'','','res','\d','')"]*>([\w\s]*),/).each do |profile|
           pf = profile[0].to_s
+          pf = pf.scan(/\/url\?q=([0-9A-Za-z:\\\/?=@+%.;"'()_-]+)&amp/).to_s if pf.match(/\/url\?q=/)
           p = profile[1].split(" ")
           @people << [ p, pf ]
           @results << [p, "P", pf, self.class.to_s.upcase, "N"]

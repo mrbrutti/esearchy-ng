@@ -98,14 +98,14 @@ This option requires several flags and sadly it is not the most stable way of ru
 == OUTSIDE LINKS AND BLOG POSTS:
 
 === Blogs:
- * http://www.freedomcoder.com.ar/2010/07/09/client-side-penetration-testing-with-esearchy-emaily/
- * http://www.securityaegis.com/esearchy-my-new-favorite-osint-script/
+* http://www.freedomcoder.com.ar/2010/07/09/client-side-penetration-testing-with-esearchy-emaily/
+* http://www.securityaegis.com/esearchy-my-new-favorite-osint-script/
 
 === Videos:
- * http://vimeo.com/29076511
- * http://vimeo.com/29076602
- * http://www.youtube.com/watch?v=fJ4s3toGrMw
- * http://www.securitytube.net/video/4835
+* http://vimeo.com/29076511
+* http://vimeo.com/29076602
+* http://www.youtube.com/watch?v=fJ4s3toGrMw
+* http://www.securitytube.net/video/4835
 
 
 == THANKS:

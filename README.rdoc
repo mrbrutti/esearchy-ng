@@ -95,6 +95,19 @@ This option requires several flags and sadly it is not the most stable way of ru
 
   > esearchy --enable-all -y AwgiZ8rV34Ejo9hDAsmE925sNwU0iwXoFxBSEky8wu1viJqXjwyPP7No9DYdCaUW28y0.i8pyTh4 -b 220E2E31383CA320FF7E022ABBB8B9959F3C0CFE -o output.csv -q @company.com -c Company Inc -w "http://www.company.com" -m 1000
 
+== OUTSIDE LINKS AND BLOG POSTS:
+
+=== Blogs:
+ * http://www.freedomcoder.com.ar/2010/07/09/client-side-penetration-testing-with-esearchy-emaily/
+ * http://www.securityaegis.com/esearchy-my-new-favorite-osint-script/
+
+=== Videos:
+ * http://vimeo.com/29076511
+ * http://vimeo.com/29076602
+ * http://www.youtube.com/watch?v=fJ4s3toGrMw
+ * http://www.securitytube.net/video/4835
+
+
 == THANKS:
 
 == THANKS:

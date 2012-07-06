@@ -78,6 +78,25 @@ For thouse who want to integrate this to their application you can use it in "th
 * > sudo gem install gemcutter
 * > sudo gem install esearchy
 
+== EXAMPLES:
+Esearchy-ng is a powerfull tool with many options. Eventhought we do have a --enable-all option it is not necesary the best option to start with. 
+=== Searching people
+  > esearchy -q "@company.com" -c "Company Inc" --enable-linkedin --enable-spoke -m 500
+
+It is always a good idea to put a limit on the search even if it is 50000. Although it is worth noting that nowadays Google won't show more than 1K, even when it shows millions of results.
+
+==== Searching for emails:
+This is a simple example to search for emails on all main search engines and a few PGP key servers. 
+
+  > esearchy -q "@company" -y AwgiZ8rV34Ejo9hDAsmE925sNwU0iwXoFxBSEky8wu1viJqXjwyPP7No9DYdCaUW28y0.i8pyTh4 -b 220E2E31383CA320FF7E022ABBB8B9959F3C0CFE --enable-bing --enable-google --enable-yahoo --enable-pgp -m 500
+
+==== Searching ALL:
+This option requires several flags and sadly it is not the most stable way of running it. But sometimes it does work. It searches for everything, emails, people, and even parses the website ( which might take several hours ) for emails.
+
+  > esearchy --enable-all -y AwgiZ8rV34Ejo9hDAsmE925sNwU0iwXoFxBSEky8wu1viJqXjwyPP7No9DYdCaUW28y0.i8pyTh4 -b 220E2E31383CA320FF7E022ABBB8B9959F3C0CFE -o output.csv -q @company.com -c Company Inc -w "http://www.company.com" -m 1000
+
+== THANKS:
+
 == THANKS:
 
 * http://www.penetrationtests.com/ [Penetration Testing Directory]
